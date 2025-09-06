@@ -30,15 +30,15 @@ type Routes struct {
 }
 
 type IRoutes interface {
-	Connect(route Route) IRoutes
-	Delete(route Route) IRoutes
-	Get(route Route) IRoutes
-	Head(route Route) IRoutes
-	Options(route Route) IRoutes
-	Patch(route Route) IRoutes
-	Post(route Route) IRoutes
-	Put(route Route) IRoutes
-	Trace(route Route) IRoutes
+	Connect(route Route) *Routes
+	Delete(route Route) *Routes
+	Get(route Route) *Routes
+	Head(route Route) *Routes
+	Options(route Route) *Routes
+	Patch(route Route) *Routes
+	Post(route Route) *Routes
+	Put(route Route) *Routes
+	Trace(route Route) *Routes
 }
 
 var rootNodeKey string = "root"
@@ -81,39 +81,39 @@ func NewRoutes(routeList map[string]RouteSchema) *Routes {
 	}
 }
 
-func (r *Routes) Connect(route Route) IRoutes {
+func (r *Routes) Connect(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodConnect], route)
 	return r
 }
-func (r *Routes) Delete(route Route) IRoutes {
+func (r *Routes) Delete(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodDelete], route)
 	return r
 }
-func (r *Routes) Get(route Route) IRoutes {
+func (r *Routes) Get(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodGet], route)
 	return r
 }
-func (r *Routes) Head(route Route) IRoutes {
+func (r *Routes) Head(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodHead], route)
 	return r
 }
-func (r *Routes) Options(route Route) IRoutes {
+func (r *Routes) Options(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodOptions], route)
 	return r
 }
-func (r *Routes) Patch(route Route) IRoutes {
+func (r *Routes) Patch(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodPatch], route)
 	return r
 }
-func (r *Routes) Post(route Route) IRoutes {
+func (r *Routes) Post(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodPost], route)
 	return r
 }
-func (r *Routes) Put(route Route) IRoutes {
+func (r *Routes) Put(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodPut], route)
 	return r
 }
-func (r *Routes) Trace(route Route) IRoutes {
+func (r *Routes) Trace(route Route) *Routes {
 	AddRoute(r.Routes[rootNodeKey].Children[http.MethodTrace], route)
 	return r
 }

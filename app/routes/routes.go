@@ -4,18 +4,20 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"router-schema/application/handler"
-	"router-schema/lib"
+
+	"router-schema/app/handler"
+	"router-schema/app/lib"
 )
 
 // InitRoutes initializes the routes for the application
 //
 // returns: a pointer to the Routes struct
 func InitRoutes() *lib.Routes {
-	routesList := lib.NewRoutes(nil)
-	routesList.Get(lib.Route{
+	ctx := context.Background()
+	// routesList := lib.NewRoutes(nil)
+	return lib.NewRoutes(nil).Get(lib.Route{
 		Handler: lib.
-			NewMiddleware(context.Background()).
+			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
 				fmt.Println("Middleware before handler executed")
 				return nil, nil
@@ -27,7 +29,7 @@ func InitRoutes() *lib.Routes {
 			Handler(handler.GreetingIndex),
 		Path: "/alumno/notas/codigo",
 	}).Get(lib.Route{
-		Handler: lib.NewMiddleware(nil).
+		Handler: lib.NewMiddleware(ctx).
 			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
 				fmt.Println("Hello from middleware")
 				fmt.Println("class room")
@@ -35,6 +37,4 @@ func InitRoutes() *lib.Routes {
 			}),
 		Path: "/alumno/class-room",
 	})
-
-	return routesList
 }

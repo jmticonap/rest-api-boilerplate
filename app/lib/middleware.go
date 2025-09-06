@@ -8,40 +8,40 @@ import (
 
 type MiddlewareFunc func(w http.ResponseWriter, r *http.Request) (any, error)
 
-type middleware struct {
+type Middleware struct {
 	Ctx              context.Context
 	MiddleFuncs      []MiddlewareFunc
 	MiddleAfterFuncs []MiddlewareFunc
 }
 
-type Middleware interface {
+type IMiddleware interface {
 	Use(MiddlewareFunc) Middleware
 	After(MiddlewareFunc) Middleware
 	Handler(fn MiddlewareFunc) MiddlewareFunc
 }
 
-func NewMiddleware(ctx context.Context) Middleware {
+func NewMiddleware(ctx context.Context) *Middleware {
 	middleFuncs := []MiddlewareFunc{}
-	return &middleware{
+	return &Middleware{
 		Ctx:              ctx,
 		MiddleFuncs:      middleFuncs,
 		MiddleAfterFuncs: []MiddlewareFunc{},
 	}
 }
 
-func (m *middleware) Use(fn MiddlewareFunc) Middleware {
+func (m *Middleware) Use(fn MiddlewareFunc) *Middleware {
 	m.MiddleFuncs = append(m.MiddleFuncs, fn)
 
 	return m
 }
 
-func (m *middleware) After(fn MiddlewareFunc) Middleware {
+func (m *Middleware) After(fn MiddlewareFunc) *Middleware {
 	m.MiddleAfterFuncs = append(m.MiddleAfterFuncs, fn)
 
 	return m
 }
 
-func (m *middleware) Handler(fn MiddlewareFunc) MiddlewareFunc {
+func (m *Middleware) Handler(fn MiddlewareFunc) MiddlewareFunc {
 	return func(w http.ResponseWriter, r *http.Request) (any, error) {
 		// Every middleware before is executed
 		for _, middleFunc := range m.MiddleFuncs {
