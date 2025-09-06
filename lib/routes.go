@@ -17,11 +17,11 @@ type RequestEvent struct {
 type Route struct {
 	Method  string
 	Path    string
-	Handler GenericHandler
+	Handler MiddlewareFunc
 }
 
 type RouteSchema struct {
-	Handler  GenericHandler
+	Handler  MiddlewareFunc
 	Children map[string]RouteSchema
 }
 

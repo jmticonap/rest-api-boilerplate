@@ -2,15 +2,16 @@ package lib
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 )
 
-func GetHandler(route RouteSchema, path string) (GenericHandler, error) {
+func GetHandler(route RouteSchema, path string) (MiddlewareFunc, error) {
 	cleanPath, _ := strings.CutPrefix(path, "/")
 	pathString := strings.Split(cleanPath, "/")
 	pathLen := len(pathString)
 
-	var handler GenericHandler
+	var handler MiddlewareFunc
 
 	if rt, ok := route.Children[pathString[0]]; ok {
 		if pathLen == 1 {
@@ -27,18 +28,21 @@ func GetHandler(route RouteSchema, path string) (GenericHandler, error) {
 	return handler, nil
 }
 
-func HttpRouter(event RequestEvent, routes map[string]RouteSchema) (any, error) {
-	method := event.Method
-	path := event.Path
+func HttpRouterHandler(routes map[string]RouteSchema) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		method := r.Method
+		path := r.URL.Path
 
-	var handler func() (any, error)
-	var err error
+		var handler MiddlewareFunc
+		var err error
 
-	handler, err = GetHandler(routes[rootNodeKey].Children[method], path)
+		handler, err = GetHandler(routes[rootNodeKey].Children[method], path)
 
-	if err == nil {
-		return handler()
-	} else {
-		return nil, err
+		if err == nil {
+			handler(w, r)
+			return
+		} else {
+			return
+		}
 	}
 }

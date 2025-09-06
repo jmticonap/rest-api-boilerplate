@@ -6,12 +6,10 @@ import (
 	"net/http"
 )
 
-type MiddlewareFunc func(ctx context.Context, w http.ResponseWriter, r *http.Request) (any, error)
+type MiddlewareFunc func(w http.ResponseWriter, r *http.Request) (any, error)
 
 type middleware struct {
 	Ctx              context.Context
-	Response         http.ResponseWriter
-	Request          *http.Request
 	MiddleFuncs      []MiddlewareFunc
 	MiddleAfterFuncs []MiddlewareFunc
 }
@@ -19,16 +17,15 @@ type middleware struct {
 type Middleware interface {
 	Use(MiddlewareFunc) Middleware
 	After(MiddlewareFunc) Middleware
-	Handler(MiddlewareFunc) Middleware
+	Handler(fn MiddlewareFunc) MiddlewareFunc
 }
 
-func NewMiddleware(w http.ResponseWriter, r *http.Request) Middleware {
+func NewMiddleware(ctx context.Context) Middleware {
 	middleFuncs := []MiddlewareFunc{}
 	return &middleware{
-		Ctx:         context.Background(),
-		Response:    w,
-		Request:     r,
-		MiddleFuncs: middleFuncs,
+		Ctx:              ctx,
+		MiddleFuncs:      middleFuncs,
+		MiddleAfterFuncs: []MiddlewareFunc{},
 	}
 }
 
@@ -44,39 +41,40 @@ func (m *middleware) After(fn MiddlewareFunc) Middleware {
 	return m
 }
 
-func (m *middleware) Handler(fn MiddlewareFunc) Middleware {
-	// Every middleware before is executed
-	for _, middleFunc := range m.MiddleFuncs {
-		result, err := middleFunc(m.Ctx, m.Response, m.Request)
+func (m *middleware) Handler(fn MiddlewareFunc) MiddlewareFunc {
+	return func(w http.ResponseWriter, r *http.Request) (any, error) {
+		// Every middleware before is executed
+		for _, middleFunc := range m.MiddleFuncs {
+			result, err := middleFunc(w, r)
+			if err != nil {
+				slog.Error("Error in middleware", slog.String("error", err.Error()))
+				return nil, err
+			}
+			if result != nil {
+				slog.Info("Middleware returned a result", slog.Any("result", result))
+			}
+		}
+
+		result, err := fn(w, r)
 		if err != nil {
-			slog.Error("Error in middleware", slog.String("error", err.Error()))
-			return m
+			slog.Error("Error in handler", slog.String("error", err.Error()))
+			return nil, err
 		}
 		if result != nil {
-			slog.Info("Middleware returned a result", slog.Any("result", result))
+			slog.Info("Handler returned a result", slog.Any("result", result))
 		}
-	}
 
-	result, err := fn(m.Ctx, m.Response, m.Request)
-	if err != nil {
-		slog.Error("Error in handler", slog.String("error", err.Error()))
-		return m
-	}
-	if result != nil {
-		slog.Info("Handler returned a result", slog.Any("result", result))
-	}
-
-	// Every middleware after is executed
-	for _, middleAfterFunc := range m.MiddleAfterFuncs {
-		result, err := middleAfterFunc(m.Ctx, m.Response, m.Request)
-		if err != nil {
-			slog.Error("Error in middleware", slog.String("error", err.Error()))
-			return m
+		// Every middleware after is executed
+		for _, middleAfterFunc := range m.MiddleAfterFuncs {
+			result, err := middleAfterFunc(w, r)
+			if err != nil {
+				slog.Error("Error in middleware", slog.String("error", err.Error()))
+				return nil, err
+			}
+			if result != nil {
+				slog.Info("Middleware returned a result", slog.Any("result", result))
+			}
 		}
-		if result != nil {
-			slog.Info("Middleware returned a result", slog.Any("result", result))
-		}
+		return result, err
 	}
-
-	return m
 }
