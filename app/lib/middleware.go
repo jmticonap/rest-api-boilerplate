@@ -43,16 +43,22 @@ func (m *Middleware) After(fn MiddlewareFunc) *Middleware {
 
 func (m *Middleware) Handler(fn MiddlewareFunc) MiddlewareFunc {
 	return func(w http.ResponseWriter, r *http.Request) (any, error) {
+		var resultBf any
 		// Every middleware before is executed
 		for _, middleFunc := range m.MiddleFuncs {
-			result, err := middleFunc(w, r)
+			var err error
+			resultBf, err = middleFunc(w, r)
 			if err != nil {
 				slog.Error("Error in middleware", slog.String("error", err.Error()))
 				return nil, err
 			}
-			if result != nil {
-				slog.Info("Middleware returned a result", slog.Any("result", result))
+			if resultBf != nil {
+				slog.Info("Middleware returned a result", slog.Any("result", resultBf))
+				break
 			}
+		}
+		if resultBf != nil {
+			return resultBf, nil
 		}
 
 		result, err := fn(w, r)

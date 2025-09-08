@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"router-schema/app/handler"
+	"router-schema/app/application/handler"
 	"router-schema/app/lib"
 )
 
@@ -20,6 +20,10 @@ func InitRoutes() *lib.Routes {
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
 				fmt.Println("Middleware before handler executed")
+				return nil, nil
+			}).
+			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
+				fmt.Println("Middleware 2 before handler executed")
 				return nil, nil
 			}).
 			After(func(w http.ResponseWriter, r *http.Request) (any, error) {

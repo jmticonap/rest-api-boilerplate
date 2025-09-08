@@ -1,7 +1,9 @@
 package lib
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -42,6 +44,16 @@ func HttpRouterHandler(routes map[string]RouteSchema) http.HandlerFunc {
 			handler(w, r)
 			return
 		} else {
+			msg := "Path not found"
+			result := map[string]string{
+				"message": msg,
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(result)
+
+			log.Println(msg)
+
 			return
 		}
 	}
