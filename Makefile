@@ -11,7 +11,7 @@ build:
 	@echo "Done"
 
 test:
-	@go test -v -cover -coverprofile=coverage.out ./... -coverpkg=./app/...
+	@go test -v -cover -coverprofile=coverage.out ./... -coverpkg=./app/lib/...
 
 test-coverage:
 	@go tool cover -html=coverage.out

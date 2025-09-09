@@ -1,11 +1,11 @@
-package handler_test
+package lib_test
 
 import (
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"router-schema/app/lib"
+	"rest-api/app/lib"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

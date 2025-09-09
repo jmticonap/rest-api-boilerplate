@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
-	"router-schema/app/lib"
-	"router-schema/app/routes"
+	"rest-api/app/lib"
+	"rest-api/app/routes"
 )
 
 var routesList *lib.Routes

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"router-schema/app/application/handler"
-	"router-schema/app/lib"
+	"rest-api/app/application/handler"
+	"rest-api/app/lib"
 )
 
 // InitRoutes initializes the routes for the application

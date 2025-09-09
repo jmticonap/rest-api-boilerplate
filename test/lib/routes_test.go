@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"router-schema/app/lib"
+	"rest-api/app/lib"
 
 	"testing"
 

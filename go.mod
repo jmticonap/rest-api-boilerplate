@@ -1,4 +1,4 @@
-module router-schema
+module rest-api
 
 go 1.24.6
 
