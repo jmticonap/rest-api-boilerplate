@@ -15,7 +15,7 @@ func init() {
 
 func main() {
 	var server http.Server
-	server.Addr = "127.0.0.1:3000"
+	server.Addr = ":3000"
 	server.Handler = http.HandlerFunc(
 		lib.HttpRouterHandler(routesList.Routes),
 	)

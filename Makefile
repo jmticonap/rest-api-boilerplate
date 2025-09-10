@@ -15,3 +15,9 @@ test:
 
 test-coverage:
 	@go tool cover -html=coverage.out
+
+docker-build:
+	@docker build -f docker/Dockerfile -t jmticonap/rest-api-boilerplate .
+
+docker-up:
+	@docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit
