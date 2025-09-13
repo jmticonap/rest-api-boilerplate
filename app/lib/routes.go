@@ -71,13 +71,9 @@ func GetRouteList() map[string]RouteSchema {
 	return routes
 }
 
-func NewRoutes(routeList map[string]RouteSchema) *Routes {
-	if routeList == nil {
-		routeList = GetRouteList()
-	}
-
+func NewRoutes() *Routes {
 	return &Routes{
-		Routes: routeList,
+		Routes: GetRouteList(),
 	}
 }
 

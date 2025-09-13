@@ -30,7 +30,7 @@ services:
       - "3000:3000"
     networks:
       - apinet
-    command: ./router-schema
+    command: ./rest-api
 
 # volumes:
 #   pg_data:

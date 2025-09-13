@@ -14,8 +14,7 @@ import (
 // returns: a pointer to the Routes struct
 func InitRoutes() *lib.Routes {
 	ctx := context.Background()
-	// routesList := lib.NewRoutes(nil)
-	return lib.NewRoutes(nil).Get(lib.Route{
+	return lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {

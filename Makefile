@@ -2,16 +2,19 @@
 
 run:
 	@echo "Running the application..."
-	@go run ./app/cmd/main.go
+	@go run ./app/main.go
 
 build:
-	@ rm -f router-schema
+	@ rm -f rest-api
 	@echo "Building the application..."
-	@go build -o router-schema ./app/cmd/main.go
+	@go build -o rest-api ./app/main.go
 	@echo "Done"
 
 test:
-	@go test -v -cover -coverprofile=coverage.out ./... -coverpkg=./app/lib/...
+	@go test -cover -coverprofile=coverage.out ./test/... -coverpkg=./app/...
+
+test-v:
+	@go test -v -cover -coverprofile=coverage.out ./test/... -coverpkg=./app/...
 
 test-coverage:
 	@go tool cover -html=coverage.out

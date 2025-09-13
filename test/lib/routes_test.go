@@ -13,7 +13,7 @@ import (
 
 func TestRoutesGet(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Get(lib.Route{
+	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -57,7 +57,7 @@ func TestRoutesGet(t *testing.T) {
 
 func TestRoutesPost(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Post(lib.Route{
+	routes := lib.NewRoutes().Post(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -101,7 +101,7 @@ func TestRoutesPost(t *testing.T) {
 
 func TestRoutesPatch(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Patch(lib.Route{
+	routes := lib.NewRoutes().Patch(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -145,7 +145,7 @@ func TestRoutesPatch(t *testing.T) {
 
 func TestRoutesPut(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Put(lib.Route{
+	routes := lib.NewRoutes().Put(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -189,7 +189,7 @@ func TestRoutesPut(t *testing.T) {
 
 func TestRoutesDelete(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Delete(lib.Route{
+	routes := lib.NewRoutes().Delete(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -233,7 +233,7 @@ func TestRoutesDelete(t *testing.T) {
 
 func TestRoutesConnect(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Connect(lib.Route{
+	routes := lib.NewRoutes().Connect(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -277,7 +277,7 @@ func TestRoutesConnect(t *testing.T) {
 
 func TestRoutesHead(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Head(lib.Route{
+	routes := lib.NewRoutes().Head(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -321,7 +321,7 @@ func TestRoutesHead(t *testing.T) {
 
 func TestRoutesOptions(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Options(lib.Route{
+	routes := lib.NewRoutes().Options(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -365,7 +365,7 @@ func TestRoutesOptions(t *testing.T) {
 
 func TestRoutesTrace(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Trace(lib.Route{
+	routes := lib.NewRoutes().Trace(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -409,7 +409,7 @@ func TestRoutesTrace(t *testing.T) {
 
 func TestRoutesMix(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Get(lib.Route{
+	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -456,7 +456,7 @@ func TestRoutesMix(t *testing.T) {
 }
 
 func TestRoutesCleanRoutes(t *testing.T) {
-	routes := lib.NewRoutes(nil)
+	routes := lib.NewRoutes()
 
 	t.Run("Should haves all http method", func(t *testing.T) {
 		methodsList := []string{

@@ -21,23 +21,20 @@ type IMiddleware interface {
 }
 
 func NewMiddleware(ctx context.Context) *Middleware {
-	middleFuncs := []MiddlewareFunc{}
 	return &Middleware{
 		Ctx:              ctx,
-		MiddleFuncs:      middleFuncs,
+		MiddleFuncs:      []MiddlewareFunc{},
 		MiddleAfterFuncs: []MiddlewareFunc{},
 	}
 }
 
 func (m *Middleware) Use(fn MiddlewareFunc) *Middleware {
 	m.MiddleFuncs = append(m.MiddleFuncs, fn)
-
 	return m
 }
 
 func (m *Middleware) After(fn MiddlewareFunc) *Middleware {
 	m.MiddleAfterFuncs = append(m.MiddleAfterFuncs, fn)
-
 	return m
 }
 

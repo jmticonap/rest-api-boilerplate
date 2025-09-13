@@ -13,7 +13,7 @@ import (
 
 func TestHttpRouterHandler(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Get(lib.Route{
+	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -47,7 +47,7 @@ func TestHttpRouterHandler(t *testing.T) {
 
 func TestHttpRouterHandlerNotFound(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Get(lib.Route{
+	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
@@ -81,7 +81,7 @@ func TestHttpRouterHandlerNotFound(t *testing.T) {
 
 func TestHttpRouterHandlerExecBefore(t *testing.T) {
 	ctx := context.Background()
-	routes := lib.NewRoutes(nil).Get(lib.Route{
+	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
 			NewMiddleware(ctx).
 			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {

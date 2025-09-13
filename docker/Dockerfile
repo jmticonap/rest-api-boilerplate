@@ -21,4 +21,4 @@ RUN make build
 EXPOSE 3000
 
 # Comando de inicio
-CMD ["./router-schema"]
+CMD ["./rest-api"]
