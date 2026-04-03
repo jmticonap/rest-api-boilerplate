@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -33,7 +34,7 @@ func GetHandler(route *RouteSchema, path string) (MiddlewareFunc, error) {
 func HttpRouterHandler(routes map[string]*RouteSchema) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		method := r.Method
-		path := r.URL.Path
+		path := path.Clean(r.URL.Path)
 
 		var handler MiddlewareFunc
 		var err error

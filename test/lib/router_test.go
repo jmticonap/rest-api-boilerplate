@@ -131,3 +131,27 @@ func TestHttpRouterHandlerExecBefore(t *testing.T) {
 	assert.NoError(t, err)
 	assert.EqualValues(t, "Path not found", response["message"])
 }
+
+func TestHttpRouterHandlerDuplicateSlashes(t *testing.T) {
+	ctx := context.Background()
+	routes := lib.NewRoutes().Get(lib.Route{
+		Handler: lib.NewMiddleware(ctx).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
+			result := map[string]string{"message": "Success"}
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(result)
+			return result, nil
+		}),
+		Path: "/some/path",
+	})
+
+	// Petición con slashes duplicados
+	req := httptest.NewRequest("GET", "http://example.com//some//path", nil)
+	rec := httptest.NewRecorder()
+	lib.HttpRouterHandler(routes.Routes)(rec, req)
+
+	assert.EqualValues(t, http.StatusOK, rec.Code, "Debería normalizar los slashes y devolver 200 OK")
+
+	var response map[string]string
+	json.Unmarshal(rec.Body.Bytes(), &response)
+	assert.EqualValues(t, "Success", response["message"])
+}
