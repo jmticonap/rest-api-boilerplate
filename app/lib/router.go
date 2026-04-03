@@ -40,7 +40,7 @@ func HttpRouterHandler(routes map[string]RouteSchema) http.HandlerFunc {
 
 		handler, err = GetHandler(routes[rootNodeKey].Children[method], path)
 
-		if err == nil {
+		if err == nil && handler != nil {
 			handler(w, r)
 			return
 		} else {

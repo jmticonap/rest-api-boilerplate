@@ -39,5 +39,8 @@ func InitRoutes() *lib.Routes {
 				return nil, nil
 			}),
 		Path: "/alumno/class-room",
+	}).Get(lib.Route{
+		Handler: nil,
+		Path:    "/alumno/class-room/1",
 	})
 }
