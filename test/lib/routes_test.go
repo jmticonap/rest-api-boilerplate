@@ -480,3 +480,36 @@ func TestRoutesCleanRoutes(t *testing.T) {
 		}
 	})
 }
+
+func TestRouteIntegrityOverwriting(t *testing.T) {
+	ctx := context.Background()
+	routes := lib.NewRoutes()
+
+	// 1. Registramos primero la ruta larga
+	routes.Get(lib.Route{
+		Handler: lib.NewMiddleware(ctx).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
+			return nil, nil
+		}),
+		Path: "/alumno/notas/codigo",
+	})
+
+	// 2. Registramos después la ruta corta (el padre)
+	routes.Get(lib.Route{
+		Handler: lib.NewMiddleware(ctx).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
+			return nil, nil
+		}),
+		Path: "/alumno/notas",
+	})
+
+	t.Run("Should not delete child routes when a parent is registered", func(t *testing.T) {
+		cRoot := routes.Routes["root"]
+		cGet := cRoot.Children[http.MethodGet]
+		cAlumno := cGet.Children["alumno"]
+		cNotas := cAlumno.Children["notas"]
+
+		// Verificamos si "codigo" sigue existiendo
+		_, okCodigo := cNotas.Children["codigo"]
+
+		assert.True(t, okCodigo, "CRÍTICO: La ruta /alumno/notas/codigo DESAPARECIÓ al registrar /alumno/notas")
+	})
+}

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func GetHandler(route RouteSchema, path string) (MiddlewareFunc, error) {
+func GetHandler(route *RouteSchema, path string) (MiddlewareFunc, error) {
 	cleanPath, _ := strings.CutPrefix(path, "/")
 	pathString := strings.Split(cleanPath, "/")
 	pathLen := len(pathString)
@@ -30,7 +30,7 @@ func GetHandler(route RouteSchema, path string) (MiddlewareFunc, error) {
 	return handler, nil
 }
 
-func HttpRouterHandler(routes map[string]RouteSchema) http.HandlerFunc {
+func HttpRouterHandler(routes map[string]*RouteSchema) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		method := r.Method
 		path := r.URL.Path

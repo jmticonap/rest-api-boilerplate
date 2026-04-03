@@ -22,11 +22,11 @@ type Route struct {
 
 type RouteSchema struct {
 	Handler  MiddlewareFunc
-	Children map[string]RouteSchema
+	Children map[string]*RouteSchema
 }
 
 type Routes struct {
-	Routes map[string]RouteSchema
+	Routes map[string]*RouteSchema
 }
 
 type IRoutes interface {
@@ -43,11 +43,11 @@ type IRoutes interface {
 
 var rootNodeKey string = "root"
 
-func GetRouteList() map[string]RouteSchema {
-	routes := make(map[string]RouteSchema)
-	routes[rootNodeKey] = RouteSchema{
+func GetRouteList() map[string]*RouteSchema {
+	routes := make(map[string]*RouteSchema)
+	routes[rootNodeKey] = &RouteSchema{
 		Handler:  nil,
-		Children: make(map[string]RouteSchema),
+		Children: make(map[string]*RouteSchema),
 	}
 	methodsList := []string{
 		http.MethodConnect,
@@ -61,9 +61,9 @@ func GetRouteList() map[string]RouteSchema {
 		http.MethodTrace,
 	}
 	for _, method := range methodsList {
-		rSch := RouteSchema{
+		rSch := &RouteSchema{
 			Handler:  nil,
-			Children: make(map[string]RouteSchema),
+			Children: make(map[string]*RouteSchema),
 		}
 		routes[rootNodeKey].Children[method] = rSch
 	}
@@ -114,25 +114,23 @@ func (r *Routes) Trace(route Route) *Routes {
 	return r
 }
 
-func AddRoute(rootRoute RouteSchema, route Route) {
+func AddRoute(rootRoute *RouteSchema, route Route) {
 	cleanPath, _ := strings.CutPrefix(route.Path, "/")
 	pathString := strings.Split(cleanPath, "/")
 	pathLen := len(pathString)
 
-	if pathLen == 1 {
-		rootRoute.Children[pathString[0]] = RouteSchema{
-			Handler:  route.Handler,
-			Children: make(map[string]RouteSchema),
+	node, ok := rootRoute.Children[pathString[0]]
+	if !ok {
+		node = &RouteSchema{
+			Children: make(map[string]*RouteSchema),
 		}
-	} else {
-		if _, ok := rootRoute.Children[pathString[0]]; !ok {
-			rootRoute.Children[pathString[0]] = RouteSchema{
-				Handler:  nil,
-				Children: make(map[string]RouteSchema),
-			}
-		}
+		rootRoute.Children[pathString[0]] = node
+	}
 
-		AddRoute(rootRoute.Children[pathString[0]], Route{
+	if pathLen == 1 {
+		node.Handler = route.Handler
+	} else {
+		AddRoute(node, Route{
 			Handler: route.Handler,
 			Path:    strings.Join(pathString[1:], "/"),
 		})
