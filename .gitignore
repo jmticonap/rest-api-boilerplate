@@ -1,7 +1,5 @@
-coverage.out
-router-schema
+**/coverage.out
+**/router-schema
 .vscode/*
 
-GEMINI.md
-router-schema
-coverage.out
+**/GEMINI.md
