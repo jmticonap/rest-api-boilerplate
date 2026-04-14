@@ -1,7 +1,6 @@
 package lib_test
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -12,25 +11,21 @@ import (
 )
 
 func TestHttpRouterHandler(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Get(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				result := map[string]string{
-					"message": "Hello, World!",
-				}
+	routes := lib.NewRoutes().
+		Get(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					result := map[string]string{
+						"message": "Hello, World!",
+					}
 
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
-				if err := json.NewEncoder(w).Encode(result); err != nil {
-					return nil, err
-				}
-
-				return result, nil
-			}),
-		Path: "/some/path",
-	})
+					return &lib.MidResponse{
+						Status: http.StatusOK,
+						Data:   result,
+					}, nil
+				}),
+			Path: "/some/path",
+		})
 
 	req := httptest.NewRequest("GET", "http://example.com/some/path", nil)
 	rec := httptest.NewRecorder()
@@ -46,22 +41,17 @@ func TestHttpRouterHandler(t *testing.T) {
 }
 
 func TestHttpRouterHandlerNotFound(t *testing.T) {
-	ctx := context.Background()
 	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
-			NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
+			NewMiddleware().
+			Build(func(r *http.Request) (*lib.MidResponse, error) {
 				result := map[string]string{
 					"message": "Hello, World!",
 				}
 
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
-				if err := json.NewEncoder(w).Encode(result); err != nil {
-					return nil, err
-				}
-
-				return result, nil
+				return &lib.MidResponse{
+					Data: result,
+				}, nil
 			}),
 		Path: "/some/path",
 	})
@@ -99,22 +89,18 @@ func TestHttpRouterHandlerNil(t *testing.T) {
 }
 
 func TestHttpRouterHandlerExecBefore(t *testing.T) {
-	ctx := context.Background()
 	routes := lib.NewRoutes().Get(lib.Route{
 		Handler: lib.
-			NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
+			NewMiddleware().
+			Build(func(r *http.Request) (*lib.MidResponse, error) {
 				result := map[string]string{
 					"message": "Hello, World!",
 				}
 
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
-				if err := json.NewEncoder(w).Encode(result); err != nil {
-					return nil, err
-				}
-
-				return result, nil
+				return &lib.MidResponse{
+					Status: http.StatusOK,
+					Data:   result,
+				}, nil
 			}),
 		Path: "/some/path",
 	})
@@ -133,14 +119,16 @@ func TestHttpRouterHandlerExecBefore(t *testing.T) {
 }
 
 func TestHttpRouterHandlerDuplicateSlashes(t *testing.T) {
-	ctx := context.Background()
 	routes := lib.NewRoutes().Get(lib.Route{
-		Handler: lib.NewMiddleware(ctx).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-			result := map[string]string{"message": "Success"}
-			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(result)
-			return result, nil
-		}),
+		Handler: lib.NewMiddleware().
+			Build(func(r *http.Request) (*lib.MidResponse, error) {
+				result := map[string]string{"message": "Success"}
+
+				return &lib.MidResponse{
+					Status: http.StatusOK,
+					Data:   result,
+				}, nil
+			}),
 		Path: "/some/path",
 	})
 

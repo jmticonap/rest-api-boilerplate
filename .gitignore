@@ -1,2 +1,7 @@
 coverage.out
 router-schema
+.vscode/*
+
+GEMINI.md
+router-schema
+coverage.out

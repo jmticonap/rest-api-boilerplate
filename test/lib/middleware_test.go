@@ -1,7 +1,6 @@
 package lib_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,97 +10,146 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMiddlewareBefore(t *testing.T) {
+func TestMiddlewareBeforeResponse(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://example.com/wrong/path", nil)
 	rec := httptest.NewRecorder()
+	isHandlerExecute := false
 
-	result, _ := lib.NewMiddleware(t.Context()).
-		Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
+	res, err := lib.NewMiddleware().
+		Use(func(r *http.Request) (*lib.MidResponse, error) {
 			result := map[string]string{
 				"message": "Hello, World!",
 			}
 
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			if err := json.NewEncoder(w).Encode(result); err != nil {
-				return nil, err
-			}
+			return &lib.MidResponse{
+				Status: http.StatusOK,
+				Data:   result,
+			}, nil
+		}).
+		Build(func(r *http.Request) (*lib.MidResponse, error) {
+			isHandlerExecute = true
+			return nil, nil
+		})(&lib.ResponseWrapper{ResponseWriter: rec}, req)
 
-			return result, nil
-		}).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-		return nil, nil
-	})(rec, req)
+	result, ok := res.Data.(map[string]string)
 
-	var response map[string]string
-	json.Unmarshal(rec.Body.Bytes(), &response)
-	assert.EqualValues(t, "Hello, World!", response["message"])
-
-	mapResponse, _ := result.(map[string]string)
-	assert.EqualValues(t, "Hello, World!", mapResponse["message"])
+	assert.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, res.Data, result)
+	assert.False(t, isHandlerExecute)
 }
 
 func TestMiddlewareAfter(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://example.com/wrong/path", nil)
 	rec := httptest.NewRecorder()
+	isAfterExecute := false
 
-	lib.NewMiddleware(t.Context()).
-		After(func(w http.ResponseWriter, r *http.Request) (any, error) {
+	res, err := lib.NewMiddleware().
+		Use(func(r *http.Request) (*lib.MidResponse, error) {
 			result := map[string]string{
 				"message": "Hello, World!",
 			}
 
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			if err := json.NewEncoder(w).Encode(result); err != nil {
-				return nil, err
-			}
+			return &lib.MidResponse{
+				Status: http.StatusOK,
+				Data:   result,
+			}, nil
+		}).
+		After(func(r *http.Request) (*lib.MidResponse, error) {
+			isAfterExecute = true
+			return nil, nil
+		}).
+		Build(func(r *http.Request) (*lib.MidResponse, error) {
+			return nil, nil
+		})(&lib.ResponseWrapper{ResponseWriter: rec}, req)
 
-			return result, nil
-		}).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-		return nil, nil
-	})(rec, req)
+	result, ok := res.Data.(map[string]string)
 
-	var response map[string]string
-	json.Unmarshal(rec.Body.Bytes(), &response)
-	assert.EqualValues(t, "Hello, World!", response["message"])
+	assert.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, res.Data, result)
+	assert.True(t, isAfterExecute)
 }
 
 func TestMiddlewareError(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://example.com/wrong/path", nil)
 	rec := httptest.NewRecorder()
+	isHandlerExecute := false
 
-	_, resError := lib.NewMiddleware(t.Context()).
-		Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-			return nil, fmt.Errorf("Some error")
-		})(rec, req)
+	res, err := lib.NewMiddleware().
+		Use(func(r *http.Request) (*lib.MidResponse, error) {
+			return nil, fmt.Errorf("test error")
+		}).
+		Error(func(r *http.Request) (*lib.MidResponse, error) {
+			return &lib.MidResponse{
+				Status: http.StatusBadRequest,
+				Data:   nil,
+			}, nil
+		}).
+		Build(func(r *http.Request) (*lib.MidResponse, error) {
+			isHandlerExecute = true
+			return nil, nil
+		})(&lib.ResponseWrapper{ResponseWriter: rec}, req)
 
-	assert.EqualError(t, resError, "Some error")
+	assert.NoError(t, err)
+	assert.Equal(t, res.Status, http.StatusBadRequest)
+	assert.False(t, isHandlerExecute)
 }
 
 func TestMiddlewareBeforeError(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://example.com/wrong/path", nil)
 	rec := httptest.NewRecorder()
 
-	_, resError := lib.NewMiddleware(t.Context()).
-		Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
+	_, err := lib.NewMiddleware().
+		Use(func(r *http.Request) (*lib.MidResponse, error) {
 			return nil, fmt.Errorf("Some error")
-		}).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-		return nil, nil
-	})(rec, req)
+		}).
+		Build(func(r *http.Request) (*lib.MidResponse, error) {
+			return nil, nil
+		})(&lib.ResponseWrapper{ResponseWriter: rec}, req)
 
-	assert.EqualError(t, resError, "Some error")
+	assert.EqualError(t, err, "Some error")
 }
 
 func TestMiddlewareAfterError(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://example.com/wrong/path", nil)
 	rec := httptest.NewRecorder()
 
-	_, resError := lib.NewMiddleware(t.Context()).
-		After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-			return nil, fmt.Errorf("Some error")
-		}).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-		return nil, nil
-	})(rec, req)
+	afterExecuted := false
 
-	assert.EqualError(t, resError, "Some error")
+	_, err := lib.NewMiddleware().
+		After(func(r *http.Request) (*lib.MidResponse, error) {
+			afterExecuted = true
+			return nil, fmt.Errorf("After error")
+		}).
+		Build(func(r *http.Request) (*lib.MidResponse, error) {
+			return nil, fmt.Errorf("Main error")
+		})(&lib.ResponseWrapper{ResponseWriter: rec}, req)
+
+	assert.EqualError(t, err, "Main error")
+	assert.True(t, afterExecuted)
+}
+
+func TestMiddlewareFlowBypassVulnerability(t *testing.T) {
+	req := httptest.NewRequest("GET", "http://example.com/sensitive-data", nil)
+	rec := httptest.NewRecorder()
+
+	handlerExecuted := false
+
+	_, err := lib.NewMiddleware().
+		Use(func(r *http.Request) (*lib.MidResponse, error) {
+			return &lib.MidResponse{
+				Data: "Unauthorized",
+			}, fmt.Errorf("Unauthorized")
+		}).
+		Use(func(r *http.Request) (*lib.MidResponse, error) {
+			return nil, nil
+		}).
+		Build(func(r *http.Request) (*lib.MidResponse, error) {
+			handlerExecuted = true
+			return &lib.MidResponse{Data: "Sensitive Data"}, nil
+		})(&lib.ResponseWrapper{ResponseWriter: rec}, req)
+
+	assert.Error(t, err)
+	assert.False(t, handlerExecuted, "VULNERABILIDAD: El handler se ejecutó a pesar de que el primer middleware falló")
 }

@@ -10,9 +10,9 @@ import (
 
 func TestGreetingIndex(t *testing.T) {
 	t.Run("Exec GreetingIndex", func(t *testing.T) {
-		rec := httptest.NewRecorder()
+		// rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "http://example.com/some/path", nil)
-		response, err := handler.GreetingIndex(rec, req)
+		response, err := handler.GreetingIndex(req)
 
 		assert.Nil(t, response)
 		assert.Nil(t, err)

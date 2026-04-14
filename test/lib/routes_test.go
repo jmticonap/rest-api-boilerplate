@@ -1,7 +1,6 @@
 package lib_test
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"rest-api/app/lib"
@@ -12,31 +11,31 @@ import (
 )
 
 func TestRoutesGet(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Get(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Get(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Get(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Get(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -56,31 +55,31 @@ func TestRoutesGet(t *testing.T) {
 }
 
 func TestRoutesPost(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Post(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Post(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Post(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Post(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -100,31 +99,32 @@ func TestRoutesPost(t *testing.T) {
 }
 
 func TestRoutesPatch(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Patch(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Patch(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Patch(lib.Route{
+			Handler: lib.
+				NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Patch(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -144,31 +144,32 @@ func TestRoutesPatch(t *testing.T) {
 }
 
 func TestRoutesPut(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Put(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Put(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Put(lib.Route{
+			Handler: lib.
+				NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Put(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -188,31 +189,31 @@ func TestRoutesPut(t *testing.T) {
 }
 
 func TestRoutesDelete(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Delete(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Delete(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Delete(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Delete(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -232,31 +233,31 @@ func TestRoutesDelete(t *testing.T) {
 }
 
 func TestRoutesConnect(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Connect(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Connect(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Connect(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Connect(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -276,31 +277,31 @@ func TestRoutesConnect(t *testing.T) {
 }
 
 func TestRoutesHead(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Head(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Head(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Head(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Head(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -320,31 +321,31 @@ func TestRoutesHead(t *testing.T) {
 }
 
 func TestRoutesOptions(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Options(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Options(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Options(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Options(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -364,31 +365,31 @@ func TestRoutesOptions(t *testing.T) {
 }
 
 func TestRoutesTrace(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Trace(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Trace(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Trace(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Trace(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -408,31 +409,31 @@ func TestRoutesTrace(t *testing.T) {
 }
 
 func TestRoutesMix(t *testing.T) {
-	ctx := context.Background()
-	routes := lib.NewRoutes().Get(lib.Route{
-		Handler: lib.
-			NewMiddleware(ctx).
-			Use(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware before handler executed")
-				return nil, nil
-			}).
-			After(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Middleware after handler executed")
-				return nil, nil
-			}).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				return nil, nil
-			}),
-		Path: "/alumno/notas/codigo",
-	}).Post(lib.Route{
-		Handler: lib.NewMiddleware(ctx).
-			Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-				fmt.Println("Hello from middleware")
-				fmt.Println("class room")
-				return nil, nil
-			}),
-		Path: "/alumno/class-room",
-	})
+	routes := lib.NewRoutes().
+		Get(lib.Route{
+			Handler: lib.NewMiddleware().
+				Use(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware before handler executed")
+					return nil, nil
+				}).
+				After(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Middleware after handler executed")
+					return nil, nil
+				}).
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					return nil, nil
+				}),
+			Path: "/alumno/notas/codigo",
+		}).
+		Post(lib.Route{
+			Handler: lib.NewMiddleware().
+				Build(func(r *http.Request) (*lib.MidResponse, error) {
+					fmt.Println("Hello from middleware")
+					fmt.Println("class room")
+					return nil, nil
+				}),
+			Path: "/alumno/class-room",
+		})
 
 	t.Run("Should haves the expected keys", func(t *testing.T) {
 		cRoot, okRoot := routes.Routes["root"]
@@ -482,22 +483,23 @@ func TestRoutesCleanRoutes(t *testing.T) {
 }
 
 func TestRouteIntegrityOverwriting(t *testing.T) {
-	ctx := context.Background()
 	routes := lib.NewRoutes()
 
 	// 1. Registramos primero la ruta larga
 	routes.Get(lib.Route{
-		Handler: lib.NewMiddleware(ctx).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-			return nil, nil
-		}),
+		Handler: lib.NewMiddleware().
+			Build(func(r *http.Request) (*lib.MidResponse, error) {
+				return nil, nil
+			}),
 		Path: "/alumno/notas/codigo",
 	})
 
 	// 2. Registramos después la ruta corta (el padre)
 	routes.Get(lib.Route{
-		Handler: lib.NewMiddleware(ctx).Handler(func(w http.ResponseWriter, r *http.Request) (any, error) {
-			return nil, nil
-		}),
+		Handler: lib.NewMiddleware().
+			Build(func(r *http.Request) (*lib.MidResponse, error) {
+				return nil, nil
+			}),
 		Path: "/alumno/notas",
 	})
 

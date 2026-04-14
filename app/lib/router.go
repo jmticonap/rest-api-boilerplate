@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-func GetHandler(route *RouteSchema, path string) (MiddlewareFunc, error) {
+func GetHandler(route *RouteSchema, path string) (MdlFunc, error) {
 	cleanPath, _ := strings.CutPrefix(path, "/")
 	pathString := strings.Split(cleanPath, "/")
 	pathLen := len(pathString)
 
-	var handler MiddlewareFunc
+	var handler MdlFunc
 
 	if rt, ok := route.Children[pathString[0]]; ok {
 		if pathLen == 1 {
@@ -36,13 +36,13 @@ func HttpRouterHandler(routes map[string]*RouteSchema) http.HandlerFunc {
 		method := r.Method
 		path := path.Clean(r.URL.Path)
 
-		var handler MiddlewareFunc
+		var handler MdlFunc
 		var err error
 
 		handler, err = GetHandler(routes[rootNodeKey].Children[method], path)
 
 		if err == nil && handler != nil {
-			handler(w, r)
+			handler(&ResponseWrapper{ResponseWriter: w}, r)
 			return
 		} else {
 			msg := "Path not found"
