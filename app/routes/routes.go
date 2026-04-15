@@ -14,6 +14,11 @@ import (
 func InitRoutes() *lib.Routes {
 	return lib.NewRoutes().
 		Get(lib.Route{
+			Path: "/health",
+			Handler: lib.NewMiddleware().
+				Build(handler.HealthCheck),
+		}).
+		Get(lib.Route{
 			Handler: lib.NewMiddleware().
 				Use(func(r *http.Request) (*lib.MidResponse, error) {
 					fmt.Println("Middleware before handler executed")

@@ -1,19 +1,38 @@
 # Go REST API Boilerplate
 
-A simple and lightweight REST API boilerplate written in Go, featuring a custom router implementation. This project provides a basic structure for building RESTful services with a focus on a clear and organized routing mechanism.
+This project is a lightweight, high-performance Go REST API boilerplate featuring a custom tree-based router and a flexible middleware system. It serves as a foundation for building scalable web services with clean architecture and organized routing.
 
 ## Features
 
--   Custom router implementation using a tree-like structure.
--   Supports standard HTTP methods: `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`, `HEAD`, `CONNECT`, `TRACE`.
--   Chainable route definitions.
--   Basic event handling for incoming requests.
+-   **Custom Tree-Based Router**: Efficient route matching using a tree structure (`RouteSchema`).
+-   **Chainable Middleware System**: Support for `Use` (pre-handler), `After` (post-handler), and `Error` hooks.
+-   **Clean Architecture**: Organized structure separating library code, application logic, and route definitions.
+-   **Standard HTTP Methods**: Full support for `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`, `HEAD`, `CONNECT`, `TRACE`.
+-   **Request/Response Wrappers**: Convenient abstractions for handling HTTP requests and responses.
+-   **Docker Ready**: Includes `Dockerfile` and `docker-compose.yml` for containerized environments.
+-   **Comprehensive Testing**: Pre-configured test suite with coverage reporting.
+
+## Project Structure
+
+```text
+├── app/
+│   ├── main.go               # Entry point of the application
+│   ├── application/
+│   │   └── handler/          # Business logic handlers
+│   ├── lib/                  # Core library (router, middleware, wrappers)
+│   └── routes/               # Centralized route definitions
+├── docker/                   # Docker configuration files
+├── test/                     # Comprehensive test suite
+├── go.mod                    # Go module definition
+└── Makefile                  # Common development tasks
+```
 
 ## Getting Started
 
 ### Prerequisites
 
--   Go 1.21 or higher
+-   **Go**: 1.26 or higher
+-   **Docker** (optional): For containerized execution
 
 ### Installation
 
@@ -28,68 +47,104 @@ A simple and lightweight REST API boilerplate written in Go, featuring a custom 
     go mod tidy
     ```
 
-### Running the Application
+### Running Locally
 
-To run the main application, which demonstrates a few sample routes:
+To run the application directly:
 
 ```sh
-go run main.go
+make run
 ```
 
-You should see output indicating that the router is being created and the handlers for the defined routes are being executed.
+To build and run the binary:
+
+```sh
+make build
+./rest-api
+```
+
+The server starts on `http://localhost:3000`.
 
 ## Usage
 
-Here's a basic example of how to define routes using the custom router:
+### Defining Routes
+
+Routes are defined in `app/routes/routes.go` using a builder-style interface:
 
 ```go
-package main
+package routes
 
 import (
-	"fmt"
-	"router-schema/lib"
+	"rest-api/app/application/handler"
+	"rest-api/app/lib"
 )
 
-func main() {
-	// Create a new router
-	router := lib.NewRouter()
-
-	// Define a GET route
-	router.Get(lib.Route{
-		Handler: func() {
-			fmt.Println("Handler for /users")
-		},
-		Path: "/users",
-	})
-
-    // Define a nested GET route
-	router.Get(lib.Route{
-		Handler: func() {
-			fmt.Println("Handler for /users/profile")
-		},
-		Path: "/users/profile",
-	})
-
-	// Execute an event to trigger a route handler
-	lib.ExeEvent(lib.RequestEvent{
-		Method: "GET",
-		Path:   "/users/profile",
-	}, router.Routes)
+func InitRoutes() *lib.Routes {
+	return lib.NewRoutes().
+		Get(lib.Route{
+			Path: "/example",
+			Handler: lib.NewMiddleware().
+				Use(MyMiddleware).
+				Build(handler.MyHandler),
+		})
 }
+```
+
+### Creating Handlers
+
+Handlers follow a specific signature that integrates with the middleware system:
+
+```go
+func MyHandler(r *http.Request) (*lib.MidResponse, error) {
+    // Business logic here
+    return &lib.MidResponse{
+        Status: http.StatusOK,
+        Data: map[string]string{"message": "Hello World"},
+    }, nil
+}
+```
+
+### Using Middleware
+
+Middleware can be chained using `.Use()`, `.After()`, or `.Error()`:
+
+```go
+lib.NewMiddleware().
+    Use(func(r *http.Request) (*lib.MidResponse, error) {
+        // Pre-handler logic
+        return nil, nil
+    }).
+    After(func(r *http.Request) (*lib.MidResponse, error) {
+        // Post-handler logic
+        return nil, nil
+    }).
+    Build(myHandler)
 ```
 
 ## Testing
 
-This project uses the standard `go test` command and includes a `Makefile` for convenience. To run the tests and generate a coverage report:
+The project uses a `Makefile` to simplify testing and coverage reporting:
+
+| Command | Description |
+| :--- | :--- |
+| `make test` | Runs all tests with coverage. |
+| `make test-v` | Runs tests in verbose mode. |
+| `make test-coverage` | Opens the HTML coverage report. |
+
+## Continuous Integration
+
+The repository includes a GitHub Actions workflow (`.github/workflows/go-tests.yml`) that automatically runs unit tests on every pull request to the `main`, `develop`, and `release` branches, ensuring code quality and preventing regressions.
+
+## Docker
+
+To build and run the application using Docker:
 
 ```sh
-make test
-```
+# Build the image
+make docker-build
 
-This command will:
-1.  Run all tests in verbose mode.
-2.  Generate a `coverage.out` file with the test coverage profile.
-3.  Open the HTML coverage report in your default browser.
+# Start the application
+make docker-up
+```
 
 ## License
 
